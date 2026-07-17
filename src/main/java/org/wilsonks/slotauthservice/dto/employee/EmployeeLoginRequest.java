@@ -1,4 +1,4 @@
-package org.wilsonks.slotauthservice.dto;
+package org.wilsonks.slotauthservice.dto.employee;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

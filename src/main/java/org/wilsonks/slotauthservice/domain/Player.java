@@ -30,18 +30,20 @@ public class Player {
     @Column(name = "nickname", length = 20)
     private String nickname;
 
-    @Column(name = "pin", nullable = false, length = 4)
+    @Column(name = "pin", nullable = false)
     private String pin;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
-    private PlayerStatus status;
+    @Column(name = "onHold")
+    private Boolean onHold = false;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "isPlaying")
+    private Boolean isPlaying = false;
+
+    @Column(name = "createdAt", nullable = false, updatable = false)
     @CreationTimestamp
     private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updatedAt", nullable = false)
     @UpdateTimestamp
     private Instant updatedAt;
 

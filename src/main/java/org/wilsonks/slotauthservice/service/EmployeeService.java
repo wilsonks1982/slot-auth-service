@@ -11,10 +11,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.wilsonks.slotauthservice.domain.Employee;
 import org.wilsonks.slotauthservice.domain.EmployeeRole;
-import org.wilsonks.slotauthservice.dto.EmployeeCreateRequest;
-import org.wilsonks.slotauthservice.dto.EmployeeResponse;
-import org.wilsonks.slotauthservice.dto.EmployeeUpdateRequest;
-import org.wilsonks.slotauthservice.dto.EmployeeLoginResponse;
+import org.wilsonks.slotauthservice.dto.employee.EmployeeCreateRequest;
+import org.wilsonks.slotauthservice.dto.employee.EmployeeResponse;
+import org.wilsonks.slotauthservice.dto.employee.EmployeeUpdateRequest;
+import org.wilsonks.slotauthservice.dto.employee.EmployeeLoginResponse;
 import org.wilsonks.slotauthservice.exception.ConflictException;
 import org.wilsonks.slotauthservice.exception.InvalidPinException;
 import org.wilsonks.slotauthservice.repository.EmployeeRepository;
@@ -48,7 +48,7 @@ public class EmployeeService {
                 .forEach(uid -> log.info("✅ Employee Account: {}", uid));
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)
     public EmployeeResponse create(EmployeeCreateRequest request) {
 
         if(repository.existsByAccount(request.account())) {
@@ -67,9 +67,7 @@ public class EmployeeService {
 
     }
 
-
-
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)
     public EmployeeResponse update(String account, EmployeeUpdateRequest request) {
         Employee employee = repository.findByAccountIdForUpdate(account)
                 .orElseThrow(() -> new ConflictException("Employee with Account " + account + " does not exist."));
@@ -87,13 +85,8 @@ public class EmployeeService {
         return repository
                 .findAll()
                 .stream()
-                .map(employee -> new EmployeeResponse(
-                        employee.getUid(),
-                        employee.getAccount(),
-                        employee.getRole().name()
-                ))
+                .map(EmployeeResponse::fromEntity)
                 .toList();
-
     }
 
     @Transactional(readOnly = true)
@@ -109,23 +102,6 @@ public class EmployeeService {
                 .orElseThrow(() -> new ConflictException("Employee with Account " + account + " does not exist."));
         repository.delete(employee);
         log.info("✅ Employee deleted: {}", employee.getAccount());
-    }
-
-
-    @Transactional
-    public void deactivate(String account) {
-        Employee employee = repository.findByAccountIdForUpdate(account)
-                .orElseThrow(() -> new ConflictException("Employee with Account " + account + " does not exist."));
-        employee.setActive(false);
-        log.info("✅ Employee deactivated: {}", employee.getAccount());
-    }
-
-    @Transactional(readOnly = true)
-    public void activate(String account) {
-        Employee employee = repository.findByAccountIdForUpdate(account)
-                .orElseThrow(() -> new ConflictException("Employee with Account " + account + " does not exist."));
-        employee.setActive(true);
-        log.info("✅ Employee activated: {}", employee.getAccount());
     }
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
@@ -151,5 +127,19 @@ public class EmployeeService {
     }
 
 
-
+//    @Transactional
+//    public void deactivate(String account) {
+//        Employee employee = repository.findByAccountIdForUpdate(account)
+//                .orElseThrow(() -> new ConflictException("Employee with Account " + account + " does not exist."));
+//        employee.setActive(false);
+//        log.info("✅ Employee deactivated: {}", employee.getAccount());
+//    }
+//
+//    @Transactional(readOnly = true)
+//    public void activate(String account) {
+//        Employee employee = repository.findByAccountIdForUpdate(account)
+//                .orElseThrow(() -> new ConflictException("Employee with Account " + account + " does not exist."));
+//        employee.setActive(true);
+//        log.info("✅ Employee activated: {}", employee.getAccount());
+//    }
 }

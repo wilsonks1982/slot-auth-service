@@ -12,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface PlayerRepository extends JpaRepository<Player, Long> {
     boolean existsByUid(String uid);
+    Optional<Player> findByUid(String uid);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Player p WHERE p.uid = :uid")

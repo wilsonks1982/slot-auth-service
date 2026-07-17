@@ -4,25 +4,85 @@ package org.wilsonks.slotauthservice.service;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.wilsonks.slotauthservice.domain.Player;
 import org.wilsonks.slotauthservice.dto.player.PlayerResponse;
+import org.wilsonks.slotauthservice.dto.player.PlayerSessionResponse;
 import org.wilsonks.slotauthservice.repository.PlayerRepository;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 @Slf4j
 @Transactional
 public class PlayerService {
+
+    public static final long PLAYER_TOKEN_EXPIRATION = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
+
     private final PlayerRepository repository;
+    private final JwtService jwtService;
+    private final PasswordEncoder encoder;
 
     @PostConstruct
     public void init() {
-        // Initialize the service, if needed
-        log.info("✅ PlayerService initialized");
+        repository.save(new Player(null, "23869508", "Player 1", encoder.encode("1234"), false, false, null, null, null));
+        repository.save(new Player(null, "b397c9e1", "Player 2", encoder.encode("1234"), false, false, null, null, null));
+        repository.save(new Player(null, "e378a6e4", "Player 3", encoder.encode("1234"), false, false, null, null, null));
+        repository.save(new Player(null, "f3c8d9e1", "Player 4", encoder.encode("1234"), false, false, null, null, null));
+        log.info("✅ PlayerService initialized with default players");
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)
+    public Optional<PlayerSessionResponse> createSession(String uid, String pin) {
+        // Fetch the player by UID with a lock for update
+        Optional<Player> playerOpt = repository.findByUidForUpdate(uid);
+        if (playerOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        // Validate the PIN using the PasswordEncoder
+        if (!encoder.matches(pin, playerOpt.get().getPin())) {
+            return Optional.empty();
+        }
+
+        if(playerOpt.get().getIsPlaying() == true) {
+            return Optional.of(
+                    PlayerSessionResponse.builder()
+                            .success(false)
+                            .message("Player is already on session.")
+                            .build()
+            );
+        }
+
+        if (playerOpt.get().getOnHold() == true) {
+            return Optional.of(
+                    PlayerSessionResponse.builder()
+                            .success(false)
+                            .message("Player is on hold, please contact staff.")
+                            .build()
+            );
+        }
+
+
+        Player player = playerOpt.get();
+        player.setIsPlaying(true);
+        repository.save(player);
+
+        return Optional.of(
+                PlayerSessionResponse.builder()
+                        .success(true)
+                        .message("Player session created successfully.")
+                        .uid(player.getUid())
+                        .nickname(player.getNickname())
+                        .token(jwtService.generatePlayerToken(player.getUid(), PLAYER_TOKEN_EXPIRATION))
+                        .build()
+        );
     }
 
     @Transactional(readOnly = true)
@@ -32,4 +92,54 @@ public class PlayerService {
                 .map(PlayerResponse::fromEntity)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public Optional<PlayerResponse> findByUid(String uid) {
+        return repository.findByUid(uid).map(PlayerResponse::fromEntity);
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)
+    public Optional<PlayerResponse> changePin(String uid, String newPin) {
+        Optional<Player> playerOpt = repository.findByUidForUpdate(uid);
+        if (playerOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Player player = playerOpt.get();
+        player.setPin(newPin);
+        repository.save(player);
+
+        return Optional.of(PlayerResponse.fromEntity(player));
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)
+    public Optional<PlayerResponse> changeNickname(String uid, String newNickname) {
+        Optional<Player> playerOpt = repository.findByUidForUpdate(uid);
+        if (playerOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Player player = playerOpt.get();
+        player.setNickname(newNickname);
+        repository.save(player);
+
+        return Optional.of(PlayerResponse.fromEntity(player));
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)
+    public Optional<PlayerResponse> closeSession(String uid) {
+        Optional<Player> playerOpt = repository.findByUidForUpdate(uid);
+        if (playerOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Player player = playerOpt.get();
+        player.setIsPlaying(false);
+        repository.save(player);
+
+        return Optional.of(PlayerResponse.fromEntity(player));
+    }
+
+
+
 }

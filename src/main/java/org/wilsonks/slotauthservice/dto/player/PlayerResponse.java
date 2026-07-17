@@ -1,15 +1,20 @@
 package org.wilsonks.slotauthservice.dto.player;
 
 import org.wilsonks.slotauthservice.domain.Player;
-import org.wilsonks.slotauthservice.domain.PlayerStatus;
 
 import java.time.Instant;
 
 public record PlayerResponse(
         Long id,
         String uid,
+        String role,
         String nickname,
-        PlayerStatus status,
+        String firstName,
+        String lastName,
+        Long wallet,
+        Boolean onHold,
+        Integer pin,
+        Boolean isPlaying,
         Instant createdAt,
         Instant updatedAt
 ) {
@@ -17,8 +22,14 @@ public record PlayerResponse(
         return new PlayerResponse(
                 player.getId(),
                 player.getUid(),
+                "Player",
                 player.getNickname(),
-                player.getStatus(),
+                player.getNickname(),
+                player.getNickname(),
+                0L,
+                player.getOnHold(),
+                1234,
+                player.getIsPlaying(),
                 player.getCreatedAt(),
                 player.getUpdatedAt()
         );

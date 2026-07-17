@@ -15,8 +15,6 @@ public class JwtService {
     // In a real application, this should be stored securely and not hard-coded.
     public static final String SECRET_KEY = "your-super-secret-key-that-is-at-least-32-bytes-long!";
 
-    private final long EXPIRATION_TIME = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
-
     private SecretKey getSigningKey() {
         byte[] keyBytes = SECRET_KEY.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
