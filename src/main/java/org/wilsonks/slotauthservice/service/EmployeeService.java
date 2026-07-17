@@ -37,10 +37,10 @@ public class EmployeeService {
     @PostConstruct
     public void init() {
         // Initialize the service, if needed
-        repository.save(new Employee(null, "a3c515e1", "CDAD100001", encoder.encode("1234"), EmployeeRole.ADMIN, true, null, null, null));
-        repository.save(new Employee(null, "73feb4df", "CDMA100001", encoder.encode("1234"), EmployeeRole.MANAGER, true,  null, null, null));
-        repository.save(new Employee(null, "431d73e1", "CDA1000001", encoder.encode("1234"), EmployeeRole.ATTENDANT, true, null, null, null));
-//        repository.save(new Employee(null,"73b8d008", "CDA1000002", encoder.encode("1234"), EmployeeRole.ATTENDANT, true, null,null, null));
+        repository.save(new Employee(null, "a3c515e1", "CDAD100001", encoder.encode("1234"), EmployeeRole.Admin, true, null, null, null));
+        repository.save(new Employee(null, "73feb4df", "CDMA100001", encoder.encode("1234"), EmployeeRole.Manager, true,  null, null, null));
+        repository.save(new Employee(null, "431d73e1", "CDA1000001", encoder.encode("1234"), EmployeeRole.Attendant, true, null, null, null));
+        repository.save(new Employee(null, "73b8d008", "CDA1000002", encoder.encode("1234"), EmployeeRole.Attendant, true, null,null, null));
         log.info("✅ EmployeeService initialized with default employees");
         repository.findAll()
                 .stream()
@@ -68,9 +68,9 @@ public class EmployeeService {
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)
-    public EmployeeResponse update(String account, EmployeeUpdateRequest request) {
-        Employee employee = repository.findByAccountIdForUpdate(account)
-                .orElseThrow(() -> new ConflictException("Employee with Account " + account + " does not exist."));
+    public EmployeeResponse update(String uid, EmployeeUpdateRequest request) {
+        Employee employee = repository.findByUidForUpdate(uid)
+                .orElseThrow(() -> new ConflictException("Employee with uid " + uid + " does not exist."));
 
         employee.setAccount(request.account());
         employee.setPin(encoder.encode(request.pin()));
@@ -97,9 +97,9 @@ public class EmployeeService {
     }
 
     @Transactional
-    public void delete(String account) {
-        Employee employee = repository.findByAccountIdForUpdate(account)
-                .orElseThrow(() -> new ConflictException("Employee with Account " + account + " does not exist."));
+    public void delete(String uid) {
+        Employee employee = repository.findByUidForUpdate(uid)
+                .orElseThrow(() -> new ConflictException("Employee with uid " + uid + " does not exist."));
         repository.delete(employee);
         log.info("✅ Employee deleted: {}", employee.getAccount());
     }

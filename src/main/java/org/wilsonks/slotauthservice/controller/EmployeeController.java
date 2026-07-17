@@ -1,6 +1,7 @@
 package org.wilsonks.slotauthservice.controller;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/employees")
+@Slf4j
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -24,6 +26,8 @@ public class EmployeeController {
     public ResponseEntity<?> createEmployee(@RequestBody @Valid EmployeeCreateRequest request) {
         EmployeeResponse response = employeeService.create(request);
 
+
+        log.info("Employee created successfully: {}", response);
         return ResponseEntity
                 .status(HttpStatus.CREATED) //201 Created
                 .body(response);
@@ -34,6 +38,7 @@ public class EmployeeController {
     public ResponseEntity<List<EmployeeResponse>> findAllEmployees() {
         List<EmployeeResponse> employees = employeeService.findAll();
 
+        log.info("Retrieved all employees");
         return ResponseEntity
                 .status(HttpStatus.OK) //200 OK
                 .body(employees);
@@ -44,31 +49,37 @@ public class EmployeeController {
     public ResponseEntity<EmployeeResponse> findEmployeeByAccount(@PathVariable String account) {
         EmployeeResponse employee = employeeService.findByAccount(account);
 
+        log.info("Retrieved employee by Account: {}", account);
         return ResponseEntity
                 .status(HttpStatus.OK) //200 OK
                 .body(employee);
     }
 
-    //U- Update employee by account
-    @PutMapping("/{account}")
-    public ResponseEntity<EmployeeResponse> updateEmployee(@PathVariable String account, @RequestBody @Valid EmployeeUpdateRequest request) {
-        EmployeeResponse updatedEmployee = employeeService.update(account, request);
+    //U- Update employee by uid
+    @PutMapping("/{uid}")
+    public ResponseEntity<EmployeeResponse> updateEmployee(@PathVariable String uid, @RequestBody @Valid EmployeeUpdateRequest request) {
+        EmployeeResponse updatedEmployee = employeeService.update(uid, request);
 
+        log.info("Employee updated successfully: {}", updatedEmployee);
         return ResponseEntity
                 .status(HttpStatus.OK) //200 OK
                 .body(updatedEmployee);
     }
 
-    //D- Delete employee by account
-    @DeleteMapping("/{account}")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable String account) {
-        employeeService.delete(account);
+    //D- Delete employee by uid
+    @DeleteMapping("/{uid}")
+    public ResponseEntity<Void> deleteEmployee(@PathVariable String uid) {
+        employeeService.delete(uid);
+
+        log.info("Employee deleted successfully: {}", uid);
         return ResponseEntity.noContent().build(); //204 No Content
     }
 
     @PostMapping("/login")
     public ResponseEntity<EmployeeLoginResponse> login(@RequestBody @Valid EmployeeLoginRequest request) {
         EmployeeLoginResponse response = employeeService.login(request.account(), request.pin());
+
+        log.info("Employee login successful for account: {}", request.account());
         return ResponseEntity.ok(response);
     }
 

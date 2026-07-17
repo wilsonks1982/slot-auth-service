@@ -17,4 +17,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT e FROM Employee e WHERE e.account = :account")
     Optional<Employee> findByAccountIdForUpdate(String account);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT e FROM Employee e WHERE e.uid = :uid")
+    Optional<Employee> findByUidForUpdate(String uid);
 }
