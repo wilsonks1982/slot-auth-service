@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -35,6 +36,9 @@ public class Employee {
     @Column(name = "active", nullable = false)
     private boolean active = true;
 
+    @Column(name = "lastReset", nullable = true)
+    private Instant lastReset;
+
     @Column(name = "created_at", nullable = false , updatable = false)
     private Instant createdAt;
 
@@ -49,6 +53,7 @@ public class Employee {
     protected void onCreate() {
         createdAt = Instant.now();
         updatedAt = Instant.now();
+        lastReset = Instant.now();
     }
 
     @PreUpdate

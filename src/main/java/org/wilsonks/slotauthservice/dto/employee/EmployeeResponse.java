@@ -9,6 +9,7 @@ public record EmployeeResponse(
         String account,
         String role,
         String pin,
+        Instant lastReset,
         Instant createdAt,
         Instant updatedAt) {
     public static EmployeeResponse fromEntity(Employee employee) {
@@ -17,6 +18,7 @@ public record EmployeeResponse(
                 employee.getAccount(),
                 employee.getRole().name(),
                 "****",
+                employee.getLastReset(),
                 employee.getCreatedAt(),
                 employee.getUpdatedAt()
         );

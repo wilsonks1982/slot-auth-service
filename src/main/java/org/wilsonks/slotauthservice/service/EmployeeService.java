@@ -36,12 +36,13 @@ public class EmployeeService {
 
     @PostConstruct
     public void init() {
-        // Initialize the service, if needed
-        repository.save(new Employee(null, "a3c515e1", "CDAD100001", encoder.encode("1234"), EmployeeRole.Admin, true, null, null, null));
-        repository.save(new Employee(null, "73feb4df", "CDMA100001", encoder.encode("1234"), EmployeeRole.Manager, true,  null, null, null));
-        repository.save(new Employee(null, "431d73e1", "CDA1000001", encoder.encode("1234"), EmployeeRole.Attendant, true, null, null, null));
-        repository.save(new Employee(null, "73b8d008", "CDA1000002", encoder.encode("1234"), EmployeeRole.Attendant, true, null,null, null));
-        log.info("✅ EmployeeService initialized with default employees");
+        if (repository.count() == 0) {
+            repository.save(new Employee(null, "a3c515e1", "CDAD100001", encoder.encode("1234"), EmployeeRole.Admin, true, null, null, null, null));
+            repository.save(new Employee(null, "73feb4df", "CDMA100001", encoder.encode("1234"), EmployeeRole.Manager, true, null, null, null, null));
+            repository.save(new Employee(null, "431d73e1", "CDA1000001", encoder.encode("1234"), EmployeeRole.Attendant, true, null, null, null, null));
+            repository.save(new Employee(null, "73b8d008", "CDA1000002", encoder.encode("1234"), EmployeeRole.Attendant, true, null, null, null, null));
+            log.info("✅ EmployeeService initialized with default employees");
+        }
         repository.findAll()
                 .stream()
                 .map(Employee::getUid)
@@ -124,7 +125,10 @@ public class EmployeeService {
                 employee.getUid(),
                 employee.getAccount(),
                 employee.getRole().name(),
-                EMPLOYEE_TOKEN_EXPIRATION
+                EMPLOYEE_TOKEN_EXPIRATION,
+                employee.getLastReset(),
+                employee.getCreatedAt(),
+                employee.getUpdatedAt()
         );
     }
 
