@@ -32,10 +32,12 @@ public class PlayerService {
 
     @PostConstruct
     public void init() {
-        repository.save(new Player(null, "23869508", "Player 1", encoder.encode("1234"), false, false, null, null, null));
-        repository.save(new Player(null, "b397c9e1", "Player 2", encoder.encode("1234"), false, false, null, null, null));
-        repository.save(new Player(null, "e378a6e4", "Player 3", encoder.encode("1234"), false, false, null, null, null));
-        repository.save(new Player(null, "f3c8d9e1", "Player 4", encoder.encode("1234"), false, false, null, null, null));
+        repository.save(new Player(null, "73feb4df", "Player 1", encoder.encode("1234"), false, false, null, null, null));
+        repository.save(new Player(null, "d36defe3", "Player 2", encoder.encode("1234"), false, false, null, null, null));
+        repository.save(new Player(null, "639447e4", "Player 3", encoder.encode("1234"), false, false, null, null, null));
+        repository.save(new Player(null, "d33eb9df", "Player 4", encoder.encode("1234"), false, false, null, null, null));
+        repository.save(new Player(null, "03824ee4", "Player 5", encoder.encode("1234"), false, false, null, null, null));
+        repository.save(new Player(null, "53eef7e3", "Player 6", encoder.encode("1234"), false, false, null, null, null));
         log.info("✅ PlayerService initialized with default players");
     }
 

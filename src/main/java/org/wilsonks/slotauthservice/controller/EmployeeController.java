@@ -44,17 +44,6 @@ public class EmployeeController {
                 .body(employees);
     }
 
-    //R- Read employee by account
-    @GetMapping("/{account}")
-    public ResponseEntity<EmployeeResponse> findEmployeeByAccount(@PathVariable String account) {
-        EmployeeResponse employee = employeeService.findByAccount(account);
-
-        log.info("Retrieved employee by Account: {}", account);
-        return ResponseEntity
-                .status(HttpStatus.OK) //200 OK
-                .body(employee);
-    }
-
     //U- Update employee by uid
     @PutMapping("/{uid}")
     public ResponseEntity<EmployeeResponse> updateEmployee(@PathVariable String uid, @RequestBody @Valid EmployeeUpdateRequest request) {

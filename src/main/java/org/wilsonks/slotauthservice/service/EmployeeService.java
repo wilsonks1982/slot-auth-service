@@ -89,13 +89,6 @@ public class EmployeeService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
-    public EmployeeResponse findByAccount(String account) {
-        Employee employee = repository.findByAccount(account)
-                .orElseThrow(() -> new ConflictException("Employee with Account " + account + " does not exist."));
-        return EmployeeResponse.fromEntity(employee);
-    }
-
     @Transactional
     public void delete(String uid) {
         Employee employee = repository.findByUidForUpdate(uid)
@@ -108,22 +101,31 @@ public class EmployeeService {
     public EmployeeLoginResponse login(String account, String pin) {
         Optional<Employee> optionalEmployee = repository.findByAccountIdForUpdate(account);
         if(optionalEmployee.isEmpty()) {
+            log.error("❌ Login failed for account {}: Account not found", account);
             throw new InvalidPinException("Invalid Account or PIN for employee login.");
         }
 
         Employee employee = optionalEmployee.get();
         if(!employee.isActive()) {
-            throw new ConflictException("Employee with Account " + account + " is deactivated.");
+            log.error("❌ Login failed for account {}: Account is inactive", account);
+            throw new ConflictException("Employee with account " + account + " is deactivated.");
         }
 
         if(!encoder.matches(pin, employee.getPin())) {
+            log.error("❌ Login failed for account {}: Invalid PIN", account);
             throw new InvalidPinException("Invalid Account or PIN for employee login.");
         }
 
-        String token = jwtService.generateEmployeeToken(employee.getAccount(), employee.getRole().name(), EMPLOYEE_TOKEN_EXPIRATION); // 8 hours in milliseconds
-        log.info("✅ Employee logged in: {} token {}", employee.getAccount(), token);
+        String token = jwtService.generateEmployeeToken(employee.getUid(), employee.getRole().name(), EMPLOYEE_TOKEN_EXPIRATION); // 8 hours in milliseconds
+        log.info("✅ Employee logged in: {} token {}", employee.getUid(), token);
 
-        return new EmployeeLoginResponse(token, employee.getAccount(), employee.getRole().name());
+        return new EmployeeLoginResponse(
+                token,
+                employee.getUid(),
+                employee.getAccount(),
+                employee.getRole().name(),
+                EMPLOYEE_TOKEN_EXPIRATION
+        );
     }
 
 

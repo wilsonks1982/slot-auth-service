@@ -34,8 +34,8 @@ public class JwtService {
                 .compact();
     }
 
-    public String generateEmployeeToken(String account, String role, long expirationTime) {
-        return generateToken(account, "employee", role, expirationTime);
+    public String generateEmployeeToken(String uid, String role, long expirationTime) {
+        return generateToken(uid, "employee", role, expirationTime);
     }
 
     public String generatePlayerToken(String uid, long expirationTime) {
