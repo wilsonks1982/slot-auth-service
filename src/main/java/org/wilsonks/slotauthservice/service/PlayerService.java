@@ -24,8 +24,6 @@ import java.util.Optional;
 @Transactional
 public class PlayerService {
 
-    public static final long PLAYER_TOKEN_EXPIRATION = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
-
     private final PlayerRepository repository;
     private final JwtService jwtService;
     private final PasswordEncoder encoder;
@@ -82,7 +80,7 @@ public class PlayerService {
                         .message("Player session created successfully.")
                         .uid(player.getUid())
                         .nickname(player.getNickname())
-                        .token(jwtService.generatePlayerToken(player.getUid(), PLAYER_TOKEN_EXPIRATION))
+                        .token(jwtService.generatePlayerToken(player.getUid()))
                         .build()
         );
     }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.wilsonks.slotauthservice.config.JwtProperties;
 import org.wilsonks.slotauthservice.domain.Employee;
 import org.wilsonks.slotauthservice.domain.EmployeeRole;
 import org.wilsonks.slotauthservice.dto.employee.EmployeeCreateRequest;
@@ -28,11 +29,10 @@ import java.util.Optional;
 @Transactional
 public class EmployeeService {
 
-    public static final long EMPLOYEE_TOKEN_EXPIRATION = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
-
     private final EmployeeRepository repository;
     private final PasswordEncoder encoder;
     private final JwtService jwtService;
+    private final JwtProperties jwtProperties;
 
     @PostConstruct
     public void init() {
@@ -117,7 +117,7 @@ public class EmployeeService {
             throw new InvalidPinException("Invalid Account or PIN for employee login.");
         }
 
-        String token = jwtService.generateEmployeeToken(employee.getUid(), employee.getRole().name(), EMPLOYEE_TOKEN_EXPIRATION); // 8 hours in milliseconds
+        String token = jwtService.generateEmployeeToken(employee.getUid(), employee.getRole().name()); // 8 hours in milliseconds
         log.info("✅ Employee logged in: {} token {}", employee.getUid(), token);
 
         return new EmployeeLoginResponse(
@@ -125,7 +125,7 @@ public class EmployeeService {
                 employee.getUid(),
                 employee.getAccount(),
                 employee.getRole().name(),
-                EMPLOYEE_TOKEN_EXPIRATION,
+                jwtProperties.getEmployeeSessionExpiration(),
                 employee.getLastReset(),
                 employee.getCreatedAt(),
                 employee.getUpdatedAt()
