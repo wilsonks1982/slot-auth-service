@@ -46,7 +46,7 @@ public class PlayerController {
 
     }
 
-    @PutMapping("/{uid}/session/close")
+    @PatchMapping("/{uid}/session/close")
     ResponseEntity<?> closePlayerSession(@PathVariable String uid) {
         log.info("Closing player session for UID: {}", uid);
 
@@ -59,6 +59,80 @@ public class PlayerController {
         }
 
         log.info("Player session closed successfully for UID: {}", uid);
+        return ResponseEntity
+                .status(200) // 200 OK
+                .body(updatedPlayer.get());
+    }
+
+    @PatchMapping("/{uid}/card/hold")
+    ResponseEntity<?> holdPlayerCard(@PathVariable String uid) {
+        log.info("Putting player card on hold for UID: {}", uid);
+
+        Optional<PlayerResponse> updatedPlayer = playerService.holdCard(uid);
+
+        if (updatedPlayer.isEmpty()) {
+            return ResponseEntity
+                    .status(404) // 404 Not Found
+                    .body("Player not found");
+        }
+
+        log.info("Player card put on hold successfully for UID: {}", uid);
+        return ResponseEntity
+                .status(200) // 200 OK
+                .body(updatedPlayer.get());
+    }
+
+
+    @PatchMapping("/{uid}/card/unhold")
+    ResponseEntity<?> unholdPlayerCard(@PathVariable String uid) {
+        log.info("Removing hold from player card for UID: {}", uid);
+
+        Optional<PlayerResponse> updatedPlayer = playerService.unholdCard(uid);
+
+        if(updatedPlayer.isEmpty()) {
+            return ResponseEntity
+                    .status(404) // 404 Not Found
+                    .body("Player not found");
+        }
+
+        log.info("Hold removed from player card successfully for UID: {}", uid);
+        return ResponseEntity
+                .status(200) // 200 OK
+                .body(updatedPlayer.get());
+    }
+
+
+    @PatchMapping("/{uid}/pin/change")
+    ResponseEntity<?> changePlayerPin(@PathVariable String uid, @RequestBody @Valid UpdatePinRequest request) {
+        log.info("Changing player PIN");
+
+        Optional<PlayerResponse> updatedPlayer = playerService.changePin(uid, request.pin());
+
+        if (updatedPlayer.isEmpty()) {
+            return ResponseEntity
+                    .status(404) // 404 Not Found
+                    .body("Player not found");
+        }
+
+        log.info("Player PIN changed successfully for UID: {}", uid);
+        return ResponseEntity
+                .status(200) // 200 OK
+                .body(updatedPlayer.get());
+    }
+
+    @PatchMapping("/{uid}/nickname/change")
+    ResponseEntity<?> changePlayerNickname(@PathVariable String uid, @RequestBody @Valid UpdateNicknameRequest request) {
+        log.info("Changing player nickname");
+
+        Optional<PlayerResponse> updatedPlayer = playerService.changeNickname(uid, request.nickname());
+
+        if (updatedPlayer.isEmpty()) {
+            return ResponseEntity
+                    .status(404) // 404 Not Found
+                    .body("Player not found");
+        }
+
+        log.info("Player nickname changed successfully for UID: {}", uid);
         return ResponseEntity
                 .status(200) // 200 OK
                 .body(updatedPlayer.get());
@@ -90,41 +164,7 @@ public class PlayerController {
                 .body(playerOpt.get());
     }
 
-    @PutMapping("/{uid}/pin/change")
-    ResponseEntity<?> changePlayerPin(@PathVariable String uid, @RequestBody @Valid UpdatePinRequest request) {
-        log.info("Changing player PIN");
 
-        Optional<PlayerResponse> updatedPlayer = playerService.changePin(uid, request.pin());
-
-        if (updatedPlayer.isEmpty()) {
-            return ResponseEntity
-                    .status(404) // 404 Not Found
-                    .body("Player not found");
-        }
-
-        log.info("Player PIN changed successfully for UID: {}", uid);
-        return ResponseEntity
-                .status(200) // 200 OK
-                .body(updatedPlayer.get());
-    }
-
-    @PutMapping("/{uid}/nickname/change")
-    ResponseEntity<?> changePlayerNickname(@PathVariable String uid, @RequestBody @Valid UpdateNicknameRequest request) {
-        log.info("Changing player nickname");
-
-        Optional<PlayerResponse> updatedPlayer = playerService.changeNickname(uid, request.nickname());
-
-        if (updatedPlayer.isEmpty()) {
-            return ResponseEntity
-                    .status(404) // 404 Not Found
-                    .body("Player not found");
-        }
-
-        log.info("Player nickname changed successfully for UID: {}", uid);
-        return ResponseEntity
-                .status(200) // 200 OK
-                .body(updatedPlayer.get());
-    }
 
 
 

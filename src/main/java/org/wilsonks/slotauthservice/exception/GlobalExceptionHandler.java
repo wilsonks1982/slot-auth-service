@@ -17,9 +17,6 @@ import org.wilsonks.slotauthservice.dto.ErrorResponse;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-
-
-
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<?> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(

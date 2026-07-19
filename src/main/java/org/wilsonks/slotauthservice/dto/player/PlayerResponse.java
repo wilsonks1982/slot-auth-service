@@ -13,7 +13,7 @@ public record PlayerResponse(
         String lastName,
         Long wallet,
         Boolean onHold,
-        Integer pin,
+        String pin,
         Boolean isPlaying,
         Instant createdAt,
         Instant updatedAt
@@ -28,7 +28,7 @@ public record PlayerResponse(
                 player.getNickname(),
                 0L,
                 player.getOnHold(),
-                1234,
+                "****",
                 player.getIsPlaying(),
                 player.getCreatedAt(),
                 player.getUpdatedAt()

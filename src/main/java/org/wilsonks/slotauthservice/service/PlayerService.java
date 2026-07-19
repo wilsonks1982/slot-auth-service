@@ -141,5 +141,29 @@ public class PlayerService {
     }
 
 
+    public Optional<PlayerResponse> holdCard(String uid) {
+        Optional<Player> playerOpt = repository.findByUidForUpdate(uid);
+        if (playerOpt.isEmpty()) {
+            return Optional.empty();
+        }
 
+        Player player = playerOpt.get();
+        player.setOnHold(true);
+        repository.save(player);
+
+        return Optional.of(PlayerResponse.fromEntity(player));
+    }
+
+    public Optional<PlayerResponse> unholdCard(String uid) {
+        Optional<Player> playerOpt = repository.findByUidForUpdate(uid);
+        if (playerOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Player player = playerOpt.get();
+        player.setOnHold(false);
+        repository.save(player);
+
+        return Optional.of(PlayerResponse.fromEntity(player));
+    }
 }
