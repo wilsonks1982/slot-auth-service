@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/slot_db
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+jwt:
+  secret: ${JWT_SECRET:your-super-secret-key-that-is-at-least-32-bytes-long}
+  player-session-expiration: ${JWT_PLAYER_SEESION_EXPIRATION:3600000}
+  employee-session-expiration: ${JWT_EMPLOYEE_SEESION_EXPIRATION:3600000}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:7200000}
+  issuer: slot-auth-service

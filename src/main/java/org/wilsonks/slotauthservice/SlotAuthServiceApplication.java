@@ -13,8 +13,7 @@ public class SlotAuthServiceApplication {
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(SlotAuthServiceApplication.class, args);
         String port = context.getEnvironment().getProperty("server.port");
-
-        System.out.println("✅ Slot Auth Service is running on port " + port);
+        log.info("✅ Slot Auth Service is running on port {}", port);
     }
 
 }
