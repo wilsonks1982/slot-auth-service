@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:file:./data/auth_db
+    url: jdbc:h2:mem:slot_db;
     username: sa
     password:
     driver-class-name: org.h2.Driver
@@ -10,6 +10,7 @@ spring:
     path: /h2-console
 
   jpa:
+    dialect: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
 jwt:
