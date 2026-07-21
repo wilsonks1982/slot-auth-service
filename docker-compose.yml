@@ -1,17 +1,5 @@
 services:
-  postgres_db:
-    image: postgres:15-alpine
-    container_name: slot_postgres_db
-    environment:
-      POSTGRES_DB: slot_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data
-
-  eureka-server:
+  slot-eureka-server:
     image: tykhegaming/slot-eureka-server:latest
     container_name: slot-eureka-server
     ports:
@@ -26,14 +14,15 @@ services:
           memory: 1024M
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_THREADS_VIRTUAL_ENABLED=true
       - JAVA_OPTS=-XX:+UseContainerSupport -XX:InitialRAMPercentage=75.0 -XX:MaxRAMPercentage=75.0 -XX:MaxMetaspaceSize=384m -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError -Xlog:gc:stdout:time,uptime,level,tags
 
-  slot-api-server:
-    image: tykhegaming/slot-api-server:latest
-    container_name: slot-api-server
+  slot-api-gateway:
+    image: tykhegaming/slot-api-gateway:latest
+    container_name: slot-api-gateway
     ports:
       - "8080:8080"
+    depends_on:
+      - slot-eureka-server
     deploy:
       resources:
         limits:
@@ -43,11 +32,10 @@ services:
           cpus: '1.0'
           memory: 1024M
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_THREADS_VIRTUAL_ENABLED=true
-      - JWT_SECRET:your-super-secret-key-that-is-at-least-32-bytes-long
-      - EUREKA_HOST:http://localhost:8761/eureka/
-      - SERVER_PORT:8080
+      - SPRING_PROFILES_ACTIVE=dev
+      - JWT_SECRET=your-super-secret-key-that-is-at-least-32-bytes-long
+      - EUREKA_HOST=http://slot-eureka-server:8761/eureka/
+      - SERVER_PORT=8080
       - JAVA_OPTS=-XX:+UseContainerSupport -XX:InitialRAMPercentage=75.0 -XX:MaxRAMPercentage=75.0 -XX:MaxMetaspaceSize=384m -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError -Xlog:gc:stdout:time,uptime,level,tags
 
   slot-auth-service-9091:
@@ -55,6 +43,8 @@ services:
     container_name: slot-auth-service
     ports:
       - "9091:9091"
+    depends_on:
+      - slot-eureka-server
     deploy:
         resources:
             limits:
@@ -64,15 +54,11 @@ services:
               cpus: '1.0'
               memory: 1024M
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_THREADS_VIRTUAL_ENABLED=true
-      - POSTGRES_URL=jdbc:postgresql://postgres_db:5432/slot_db
-      - POSTGRES_USER:postgres
-      - POSTGRES_PASSWORD:postgres
-      - JWT_SECRET:your-super-secret-key-that-is-at-least-32-bytes-long
-      - JWT_PLAYER_SEESION_EXPIRATION:3600000
-      - JWT_EMPLOYEE_SEESION_EXPIRATION:3600000
-      - JWT_REFRESH_EXPIRATION:7200000
-      - EUREKA_HOST:http://localhost:8761/eureka/
-      - SERVER_PORT:9091
+      - SPRING_PROFILES_ACTIVE=dev
+      - JWT_SECRET=your-super-secret-key-that-is-at-least-32-bytes-long
+      - JWT_PLAYER_SEESION_EXPIRATION=3600000
+      - JWT_EMPLOYEE_SEESION_EXPIRATION=3600000
+      - JWT_REFRESH_EXPIRATION=7200000
+      - EUREKA_HOST=http://slot-eureka-server:8761/eureka/
+      - SERVER_PORT=9091
       - JAVA_OPTS=-XX:+UseContainerSupport -XX:InitialRAMPercentage=75.0 -XX:MaxRAMPercentage=75.0 -XX:MaxMetaspaceSize=384m -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError -Xlog:gc:stdout:time,uptime,level,tags
