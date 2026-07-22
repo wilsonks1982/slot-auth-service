@@ -19,3 +19,7 @@ jwt:
   employee-session-expiration: ${JWT_EMPLOYEE_SEESION_EXPIRATION:3600000}
   refresh-expiration: ${JWT_REFRESH_EXPIRATION:7200000}
   issuer: slot-auth-service
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%X{correlationId}] [%X{userId}]  %-5level [%logger{0}] - %msg%n"

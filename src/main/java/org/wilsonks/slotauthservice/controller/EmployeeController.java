@@ -9,6 +9,7 @@ import org.wilsonks.slotauthservice.dto.employee.*;
 import org.wilsonks.slotauthservice.service.EmployeeService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/employees")
@@ -70,6 +71,22 @@ public class EmployeeController {
 
         log.info("Employee login successful for account: {}", request.account());
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/headers")
+    public ResponseEntity<?> getHeaders(@RequestHeader("X-Correlation-Id") String correlationId,
+                                        @RequestHeader("X-User-Id") String userId,
+                                        @RequestHeader("X-User-Role") String role,
+                                        @RequestHeader("X-User-Type") String type) {
+        log.info("Received headers - UserId: {}, Role: {}, Type: {}", userId, role, type);
+        return ResponseEntity.ok().body(
+                Map.of(
+                        "X-User-Id", userId,
+                        "X-User-Role", role,
+                        "X-User-Type", type,
+                        "X-Correlation-Id", correlationId
+                )
+        );
     }
 
 }
