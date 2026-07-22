@@ -118,7 +118,7 @@ public class EmployeeService {
         }
 
         String token = jwtService.generateEmployeeToken(employee.getUid(), employee.getRole().name()); // 8 hours in milliseconds
-        log.info("✅ Employee logged in: {} token {}", employee.getUid(), token);
+        log.info("✅ Employee logged in: {}", employee.getUid());
 
         return new EmployeeLoginResponse(
                 token,

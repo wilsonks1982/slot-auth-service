@@ -19,5 +19,5 @@ jwt:
 
 logging:
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%X{correlationId}] [%X{userId}]  %-5level [%logger{0}] - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%X{correlationId}] [%X{userId}] [%X{type}] [%X{role}]  [%-5level] [%logger{0}] - %msg%n"
 
