@@ -16,6 +16,16 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
       - JAVA_OPTS=-XX:+UseContainerSupport -XX:InitialRAMPercentage=75.0 -XX:MaxRAMPercentage=75.0 -XX:MaxMetaspaceSize=384m -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError -Xlog:gc:stdout:time,uptime,level,tags
 
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+
   slot-api-gateway:
     image: tykhegaming/slot-api-gateway:latest
     container_name: slot-api-gateway
@@ -61,4 +71,8 @@ services:
       - JWT_REFRESH_EXPIRATION=7200000
       - EUREKA_HOST=http://slot-eureka-server:8761/eureka/
       - SERVER_PORT=9091
+      - SEED_PLAYERS_ENABLED=true
+      - SEED_SOURCE_PLAYERS=file:/etc/seed/players.v1.json
+      - SEED_EMPLOYEES_ENABLED=true
+      - SEED_SOURCE_EMPLOYEES=/etc/seed/employees.v1.json
       - JAVA_OPTS=-XX:+UseContainerSupport -XX:InitialRAMPercentage=75.0 -XX:MaxRAMPercentage=75.0 -XX:MaxMetaspaceSize=384m -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError -Xlog:gc:stdout:time,uptime,level,tags

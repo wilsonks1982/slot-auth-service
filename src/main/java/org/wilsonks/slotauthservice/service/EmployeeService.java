@@ -19,6 +19,8 @@ import org.wilsonks.slotauthservice.dto.employee.EmployeeLoginResponse;
 import org.wilsonks.slotauthservice.exception.ConflictException;
 import org.wilsonks.slotauthservice.exception.InvalidPinException;
 import org.wilsonks.slotauthservice.repository.EmployeeRepository;
+import org.wilsonks.slotauthservice.seed.SeedLoader;
+import org.wilsonks.slotauthservice.seed.employee.SeedEmployeeDocument;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,20 +35,44 @@ public class EmployeeService {
     private final PasswordEncoder encoder;
     private final JwtService jwtService;
     private final JwtProperties jwtProperties;
+    private final SeedLoader seedLoader;
 
     @PostConstruct
     public void init() {
         if (repository.count() == 0) {
-            repository.save(new Employee(null, "a3c515e1", "CDAD100001", encoder.encode("1234"), EmployeeRole.Admin, true, null, null, null, null));
-            repository.save(new Employee(null, "73feb4df", "CDMA100001", encoder.encode("1234"), EmployeeRole.Manager, true, null, null, null, null));
-            repository.save(new Employee(null, "431d73e1", "CDA1000001", encoder.encode("1234"), EmployeeRole.Attendant, true, null, null, null, null));
-            repository.save(new Employee(null, "73b8d008", "CDA1000002", encoder.encode("1234"), EmployeeRole.Attendant, true, null, null, null, null));
-            log.info("✅ EmployeeService initialized with default employees");
+            log.info("No employees found in the database. Seeding initial employee data...");
+
+           try {
+               SeedEmployeeDocument seedEmployeeDocument = seedLoader.loadSeedEmployeesDocument();
+
+               if(seedEmployeeDocument != null && seedEmployeeDocument.getEmployees() != null) {
+                   List<Employee> employees = seedEmployeeDocument.getEmployees().stream()
+                           .map(seedEmployee -> {
+                               Employee employee = new Employee();
+                               employee.setUid(seedEmployee.getUid());
+                               employee.setRole(EmployeeRole.valueOf(seedEmployee.getRole()));
+                               employee.setAccount(seedEmployee.getAccount());
+                               employee.setPin(encoder.encode("1234")); // Default PIN for seeded employees
+                               employee.setActive(true);
+                               return employee;
+                           })
+                           .toList();
+                   if (!employees.isEmpty()) {
+                       repository.saveAll(employees);
+                       log.info("✅ EmployeeService initialized with {} default employees", employees.size());
+                   } else {
+                       log.warn("No employees found in the seed document. Check the seed file for employee data.");
+                   }
+               } else {
+                   log.warn("Seed document is null or does not contain any employees. Check the seed file for employee data.");
+               }
+
+           } catch (Exception e) {
+               log.error("Error occurred while seeding employee data: {}", e.getMessage(), e);
+           }
+
         }
-        repository.findAll()
-                .stream()
-                .map(Employee::getUid)
-                .forEach(uid -> log.info("✅ Employee Account: {}", uid));
+
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)

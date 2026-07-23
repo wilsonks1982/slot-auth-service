@@ -13,10 +13,12 @@ import org.wilsonks.slotauthservice.domain.Player;
 import org.wilsonks.slotauthservice.dto.player.PlayerResponse;
 import org.wilsonks.slotauthservice.dto.player.PlayerSessionResponse;
 import org.wilsonks.slotauthservice.repository.PlayerRepository;
+import org.wilsonks.slotauthservice.seed.SeedLoader;
+import org.wilsonks.slotauthservice.seed.player.SeedPlayersDocument;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @AllArgsConstructor
@@ -27,16 +29,46 @@ public class PlayerService {
     private final PlayerRepository repository;
     private final JwtService jwtService;
     private final PasswordEncoder encoder;
+    private final SeedLoader seedLoader;
 
     @PostConstruct
     public void init() {
-        repository.save(new Player(null, "73feb4df", "Player 1", encoder.encode("1234"), false, false, null, null, null));
-        repository.save(new Player(null, "d36defe3", "Player 2", encoder.encode("1234"), false, false, null, null, null));
-        repository.save(new Player(null, "639447e4", "Player 3", encoder.encode("1234"), false, false, null, null, null));
-        repository.save(new Player(null, "d33eb9df", "Player 4", encoder.encode("1234"), false, false, null, null, null));
-        repository.save(new Player(null, "03824ee4", "Player 5", encoder.encode("1234"), false, false, null, null, null));
-        repository.save(new Player(null, "53eef7e3", "Player 6", encoder.encode("1234"), false, false, null, null, null));
-        log.info("✅ PlayerService initialized with default players");
+        if (repository.count() == 0) {
+            log.info("No players found in the database. Seeding initial player data...");
+
+            try {
+                SeedPlayersDocument seedPlayersDocument = seedLoader.loadSeedUsersDocument();
+
+                if(seedPlayersDocument != null && seedPlayersDocument.getPlayers() != null) {
+                    AtomicInteger index = new AtomicInteger(0);
+
+                    List<Player> players = seedPlayersDocument.getPlayers().stream()
+                            .map(seedPlayer -> {
+                                Player player = new Player();
+                                player.setUid(seedPlayer.getPlayerUid());
+                                player.setNickname("Player " + index.incrementAndGet());// Default PIN for seeded players
+                                player.setPin(encoder.encode("1234"));
+                                return player;
+                            })
+                            .toList();
+                    if (!players.isEmpty()) {
+                        repository.saveAll(players);
+                        log.info("✅ PlayerService initialized with {} default players", players.size());
+                    } else {
+                        log.warn("No players found in the seed document. Check the seed file for player data.");
+                    }
+                } else {
+                    log.warn("No players found in the seed document.");
+                }
+
+
+            } catch (Exception e) {
+                log.error("Error occurred while seeding player data: {}", e.getMessage(), e);
+                throw new RuntimeException("Failed to seed player data", e);
+            }
+
+        }
+
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)

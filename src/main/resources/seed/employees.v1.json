@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "employees": [
+    { "uid": "a3c515e1", "account": "CDAD100001", "role": "Admin" },
+    { "uid": "73feb4df", "account": "CDMA100001", "role": "Manager" },
+    { "uid": "431d73e1", "account": "CDA1000001", "role": "Attendant" },
+    { "uid": "73b8d008", "account": "CDA1000002", "role": "Attendant" }
+  ]
+}

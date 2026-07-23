@@ -7,6 +7,14 @@ spring:
 server:
   port: ${SERVER_PORT:9091}
 
+seed:
+  players:
+    enabled: ${SEED_PLAYERS_ENABLED:true}
+    source: ${SEED_SOURCE_PLAYERS:classpath:seed/players.v1.json}
+  employees:
+    enabled: ${SEED_EMPLOYEES_ENABLED:true}
+    source: ${SEED_SOURCE_EMPLOYEES:classpath:seed/employees.v1.json}
+
 eureka:
   client:
     service-url:
